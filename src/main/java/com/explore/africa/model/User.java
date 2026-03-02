@@ -13,6 +13,8 @@ public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
+
+    @Column(unique = true)
     @NotBlank
     @Size(min = 5, message = "Username must be at least 5 characters long")
     private String name;
