@@ -28,9 +28,17 @@ class UserValidationTest {
         Set<ConstraintViolation<User>> violations = validator.validate(user);
         assertFalse(violations.isEmpty());
 
+        assertThat(violations).hasSize(1);
+
         assertThat(violations)
                 .extracting(ConstraintViolation::getMessage)
                 .containsExactly("Username must be at least 5 characters long");
+
+        assertThat(violations)
+                .extracting(v -> v.getPropertyPath() + " : " + v.getMessage())
+                .containsExactlyInAnyOrder(
+                        "name : Username must be at least 5 characters long"
+                );
     }
 
     @Test
