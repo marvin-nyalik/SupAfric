@@ -16,6 +16,9 @@ public class UserService {
     }
 
     public User create(String name){
+        if(name == null || name.length() < 5){
+            throw new IllegalArgumentException("Name too short");
+        }
         return userRepository.save(new User(name));
     }
 
