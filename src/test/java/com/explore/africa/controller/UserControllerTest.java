@@ -51,4 +51,19 @@ public class UserControllerTest {
                 .content(objectMapper.writeValueAsString(user)))
                 .andExpect(status().isBadRequest());
     }
+
+    @Test
+    void shouldReturnUserById() throws Exception {
+        User user = new User("Marvin");
+        ReflectionTestUtils.setField(user, "id", 1L);
+
+        when(userService.findById(1L)).thenReturn(user);
+
+        mockMvc.perform(get("/users/1"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(1L))
+                .andExpect(jsonPath("$.name").value("Marvin"));
+
+        verify(userService).findById(1L);
+    }
 }
