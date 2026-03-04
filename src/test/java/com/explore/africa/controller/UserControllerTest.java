@@ -42,4 +42,13 @@ public class UserControllerTest {
 
         verify(userService, times(1)).create("Allan");
     }
+
+    @Test
+    void shouldReturnBadRequestWhenNameTooShort() throws Exception {
+        User user = userService.create("Ann");
+        mockMvc.perform(post("/users/")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(user)))
+                .andExpect(status().isBadRequest());
+    }
 }
