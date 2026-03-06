@@ -1,10 +1,13 @@
 package com.explore.africa.controller;
 
+import com.explore.africa.exceptions.GlobalExceptionHandler;
+import com.explore.africa.exceptions.UserNotFoundException;
 import com.explore.africa.model.User;
 import com.explore.africa.service.UserService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.util.ReflectionTestUtils;
@@ -18,6 +21,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(UserController.class) //spring MVC infrastructure loaded
+@Import(GlobalExceptionHandler.class)
 public class UserControllerTest {
     @Autowired
     private MockMvc mockMvc; //mock http calls
@@ -85,5 +89,17 @@ public class UserControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.size()").value(2))
                 .andExpect(jsonPath("$[0].name").value("Marvin"));
+    }
+
+    @Test
+    void shouldReturnErrWhenUserNotFound() throws Exception{
+        when(userService.findById(99L))
+                .thenThrow(new UserNotFoundException("User with id 99 not found"));
+
+        mockMvc.perform(get("/users/99"))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.message").value("" +
+                        "User with id 99 not found"));
+        verify(userService).findById(99L);
     }
 }
