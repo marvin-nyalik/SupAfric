@@ -11,6 +11,8 @@ import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 import tools.jackson.databind.ObjectMapper;
 
+import java.util.List;
+
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -65,5 +67,23 @@ public class UserControllerTest {
                 .andExpect(jsonPath("$.name").value("Marvin"));
 
         verify(userService).findById(1L);
+    }
+
+    @Test
+    void shouldReturnAllUsers() throws Exception {
+        List<User> users = List.of(
+                new User("Marvin"),
+                new User("Allan")
+        );
+
+        ReflectionTestUtils.setField(users.get(0), "id", 1L);
+        ReflectionTestUtils.setField(users.get(1), "id", 2L);
+
+        when(userService.getAllUsers()).thenReturn(users);
+
+        mockMvc.perform(get("/users/"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.size()").value(2))
+                .andExpect(jsonPath("$[0].name").value("Marvin"));
     }
 }
